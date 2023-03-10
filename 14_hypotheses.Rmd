@@ -1,0 +1,715 @@
+
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+library(BSDA)
+
+```
+
+# Hypothesis Testing
+
+
+Before, you studied many parameters of an experiment and probabilities
+of possible outcomes. But very often analysts want to answer a question
+with only two choices.
+
+::: example
+**Example: Coin toss**
+
+A person wants to test that a penny has exactly a 50% chance of landing
+on heads, the null hypothesis would be that 50% is correct, and the
+alternative hypothesis would be that 50% is not correct.
+
+A random sample of 100 coin flips is taken, and it was found that the
+100 coin flips were distributed as 40 heads and 60 tails. The analyst
+would assume that a penny does not have a 50% chance of landing on
+heads, so it is not a "fair coin".
+
+But what if there were 48 heads and 52 tails?
+:::
+
+The null and alternative hypotheses are two competing claims that
+researchers weigh evidence for and against using a statistical test:
+
+-   Null hypothesis (H~0~): There's no effect in the population.
+-   Alternative hypothesis (H~1~): There's an effect in the population.
+
+The *null* and *alternative* are always claims about the population.
+That's because the goal of hypothesis testing is to make inferences
+about a population based on a sample. Often, we infer whether there's an
+effect in the population by looking at differences between groups or
+relationships between variables in the sample. It's critical for your
+research to write strong hypotheses.
+
+The null hypothesis is the claim that there's no effect in the
+population.
+
+If the sample provides enough evidence against the claim that there's no
+effect in the population, then we can reject the null hypothesis.
+Otherwise, we fail to reject the null hypothesis.
+
+::: example
+**Example: Legal trial**
+
+The population is accused of the "crime", and the sample is the criminal
+evidence. In the United States and many other countries, a person
+accused of a crime is assumed to be innocent until proven guilty.
+Similarly, we start by assuming the population is "innocent" of having
+an effect.
+:::
+
+In other words, the null hypothesis (i.e., that there is no effect) is
+assumed to be true until the sample provides enough evidence to reject
+it.
+
+*Null hypotheses* often include phrases such as "no effect," "no
+difference," or "no relationship." When written in mathematical terms,
+they always include an equality (usually =, but sometimes ≥ or ≤).
+
+*Alternative hypotheses* often include phrases such as "an effect," "a
+difference," or "a relationship." When alternative hypotheses are
+written in mathematical terms, they always include an inequality
+(usually ≠, but sometimes \< or \>).
+
+::: example
+**Example: Tooth flossing**
+
+Does tooth flossing affect the number of cavities?
+
+We make an experiment and calculate the mean number of cavities per
+person between the flossing group (µ~1~) and the non-flossing group
+(µ~2~).
+
+-   H~0~: Tooth flossing has **no effect** on the number of cavities
+    (µ~1~ = µ~2~ in the population).
+-   H~1~: Tooth flossing has an **effect** on the number of cavities
+    (µ~1~ ≠ µ~2~ in the population).
+:::
+
+## Task 1
+
+Express H~0~ and H~1~ symbolically for testing each claim below:
+
+1.  The mean annual starting salary for computer science majors is
+    greater than \$70,000.
+2.  The standard deviation for human body temperatures equals 0.34 °C.
+3.  The proportion of people that suffer from diabetes in America is
+    less than 9%.
+4.  The standard deviation of duration times (in seconds) of the Old
+    Faithful geyser is less than 40 seconds.
+
+# Approaches to Hypothesis Testing
+
+## 1. Using a Confidence Interval
+
+1.  Identify the null hypothesis and the alternative hypothesis (and
+    decide which is the claim).
+2.  Ensure any necessary assumptions are met for the test to be
+    conducted.
+3.  Construct a confidence interval with a confidence level of (1−α).
+4.  If the hypothesized population parameter falls outside of the
+    confidence interval, conclude that the null hypothesis should be
+    rejected based on what we saw. If it falls within the confidence
+    interval, conclude that we fail to reject the null hypothesis as a
+    result of what we saw.
+5.  Make an inference.
+
+## 2. Using Critical Values
+
+1.  Identify the null hypothesis and the alternative hypothesis (and
+    decide which is the claim).
+2.  Ensure any necessary assumptions are met for the test to be
+    conducted.
+3.  Find the test statistic.
+4.  Find the critical values associated with the significance level (α)
+    and the alternative hypothesis to establish the rejection region in
+    the distribution.
+5.  If the test statistic falls in the rejection region, conclude that
+    the null hypothesis should be rejected based on what we saw. If not,
+    conclude that we fail to reject the null hypothesis as a result of
+    what we saw.
+6.  Make an inference.
+
+**Note:** Review Chi-squared test from Lab 11.
+
+## 3. Using p-values
+
+1.  Identify the null hypothesis and the alternative hypothesis (and
+    decide which is the claim).
+2.  Ensure any necessary assumptions are met for the test to be
+    conducted.
+3.  Find the test statistic.
+4.  Find the p-value associated with the test statistic as it relates to
+    the alternative hypothesis.
+5.  Compare the p-value with the significance level (α). If p \< α,
+    conclude that the null hypothesis should be rejected based on what
+    we saw. If not, conclude that we fail to reject the null hypothesis
+    as a result of what we saw.
+6.  Make an inference.
+
+**Note:** Compare this approach with Exercise 8 from Lab 11.
+
+# One Sample Z-test
+
+**N.B.** Z-test can be applied only to normally distributed data.
+
+## Two-sided hypothesis testing
+
+When we are interested in testing whether the population mean μ is equal
+to a certain known value μ~0~, we use two-sided z-test.
+
+-   H~0~: μ = μ~0~
+-   H~1~: μ ≠ μ~0~
+
+```{r echo=FALSE, fig.height=2, fig.width=4}
+
+alpha <- 0.05
+n <- 1000
+z <- qnorm(p=alpha/2, lower.tail=F)
+
+ggplot() + xlim(-5, +5) +
+  stat_function(fun=dnorm, geom="area", xlim=c(-5, -z), fill="pink") +
+  stat_function(fun=dnorm, geom="area", xlim=c(z, 5), fill="pink") +
+  stat_function(fun=dnorm) +
+  geom_path(aes(x=c(-z, -z), y=c(0, dnorm(z)))) +
+  geom_path(aes(x=c(z, z), y=c(0, dnorm(z)))) +
+  xlab("z") + ylab("density") +
+  theme_classic()
+
+```
+
+Critical values of population mean are estimated from Normal
+distribution: $P(t > z) = \alpha/2$.
+
+## Task 2
+Let's suppose that a student is interesting in estimating how many memes
+their professors know and love. So they go to class, and every time a
+professor uses a new meme, they write it down. After a year of classes,
+the student has recorded the following meme counts, where each count
+corresponds to a single class they took:
+
+3, 7, 11, 0, 7, 0, 4, 5, 6, 2
+
+The student talks to some other students who've done similar studies and
+determines that σ=2 is a reasonable value for the standard deviation of
+this distribution.
+
+Let's test the null hypothesis that, on average, professors know 3
+memes. That is
+
+$$
+H_0: \mu = 3
+\qquad
+H_1: \mu \ne 3
+$$
+
+First we need to calculate z-statistic:
+
+$$
+z = {
+{\bar{x} - \mu_0}
+\over
+{\sigma / \sqrt{n}}
+}
+$$
+
+```{r}
+
+x <- c(3, 7, 11, 0, 7, 0, 4, 5, 6, 2)
+sigma <- 2
+
+n <- length(x)
+z_stat <- (mean(x) - 3) / (sigma / sqrt(n))
+z_stat
+```
+
+Now, find the critical values z for the significance level α = 5%
+
+```{r}
+alpha <- 0.05
+qnorm(p=alpha/2, lower.tail=T)
+qnorm(p=alpha/2, lower.tail=F)
+
+```
+
+If we want to know the probability of μ = 3, then we need to calculate
+
+$$
+\text{p-value} = P(z < z_{stat}) + P(z > z_{stat})
+$$
+
+```{r}
+
+pnorm(-2.37) + (1 - pnorm(2.37))
+pnorm(-2.37) * 2
+
+
+```
+
+The p-value is the probability that the null hypothesis is **true**.
+
+## One-sided hypothesis testing
+
+One-side test is similar to the two-sided but is used when the null
+hypothesis is less or equal, or greater or equal to some value.
+
+$$
+H_0: \mu \le 3 \qquad H_1: \mu > 3
+$$
+
+the p-value is given by $P(z > 2.37)$.
+
+```{r}
+1 - pnorm(2.37)
+
+
+```
+
+For the reverse test
+
+$$
+H_0: \mu \ge 3 \qquad H_1: \mu < 3
+$$
+
+the p-value is given by $P(z < 2.37)$.
+
+```{r}
+
+pnorm(2.37)
+
+```
+
+Pay attention, that the significance level (α) is divided by 2 in the
+two-tailed test, but is used in whole in the one-tailed test.
+
+## Exercise #3
+
+Read the dataset from "data/high-school.csv". We will work with TV
+variable.
+
+1.  Use p-value test to check could the mean value be equal to 14.3.
+2.  Use z-test to check the claim μ ≠ 14.1.
+3.  Use p-value test to check that μ \< 14.5.
+4.  Use z-test to check that μ ≤ 14.3.
+
+```{r}
+
+#question 1
+data <- read_csv("/Users/ozodbekadkhamov/DataspellProjects/hypothesis-testing/data/high-school.csv", show_col_types=F)
+
+m <- mean(data$TV)  # 14.2
+n <- nrow(data)     # 50069
+s <- sd(data$TV)
+z_stat <- (m - 14.3) / (s / sqrt(n))  # -1.52
+pnorm(z_stat) * 2
+
+```
+
+```{r}
+
+# question 2
+z_stat <- (m - 14.1) / (s / sqrt(n))
+alpha <- 0.05
+z <- qnorm(alpha/2, lower.tail=F)
+
+z_stat
+z
+
+
+```
+
+```{r}
+
+# question 3
+z_stat <- (m - 14.5) / (s / sqrt(n))  # -5.8
+pnorm(z_stat)  # only lower tail!
+
+```
+
+```{r}
+
+# question 4
+
+z_stat <- (m - 14.3) / (s / sqrt(n))
+z <- qnorm(alpha, lower.tail=F)
+
+z_stat
+z
+
+
+```
+
+## Task 4
+
+Suppose the IQ in a certain population is normally distributed with a
+mean of μ = 100 and standard deviation of σ = 15. A scientist wants to
+know if a new medication affects IQ levels, so she recruits 20 patients
+to use it for one month and records their IQ levels at the end of the
+month.
+
+```{r}
+
+# IQ levels for 20 patients after 1 month
+iq_data <- c(88, 92, 94, 94, 96, 97, 97, 97, 99, 99, 105,
+             109, 109, 109, 110, 112, 112, 113, 114, 115)
+
+```
+
+Find the mean value, z statistics and the corresponding critical values
+(α=5%).
+
+```{r}
+m0 <- 100
+s <- 15
+n <- length(iq_data)
+m <- mean(iq_data)
+z_stat <- (m - m0) / (s / sqrt(n))
+z_crit <- qnorm(p=0.05/2, lower.tail=F)
+
+m
+z_stat
+z_crit
+
+```
+
+Library BSDA provides a special function for hypothesis testing.
+
+```{r}
+library(BSDA)
+
+z.test(
+  iq_data, mu=100, sigma.x=15,
+  alternative="two.sided",
+  conf.level=0.95
+)
+
+```
+
+## Task 5
+
+Repeat the Exercise #3 using `z.test` function.
+
+Read the dataset from "data/high-school.csv". We will work with TV
+variable.
+
+1.  Use p-value test to check could the mean value be equal to 14.3.
+2.  Use z-test to check the claim μ ≠ 14.1.
+3.  Use p-value test to check that μ \< 14.5.
+4.  Use z-test to check that μ ≤ 14.3.
+
+```{r}
+data <- read_csv("/Users/ozodbekadkhamov/DataspellProjects/hypothesis-testing/data/high-school.csv", show_col_types=F)
+s <- sd(data$TV)
+
+z.test(data$TV, mu=14.3, sigma.x=s,
+       alternative="two.sided", conf.level=0.95)
+z.test(data$TV, mu=14.3, sigma.x=s,
+       alternative="two.sided", conf.level=0.95)
+
+```
+
+# Two sample Z-test
+
+A two sample z-test is used to test whether two population means are
+equal. So, the parameter `mu` of the function `z.test()` is the
+difference between two means. Usually, we assume it to be equal to 0.
+
+## Task 6
+
+Suppose the IQ levels among individuals in two different cities are
+known to be normally distributed each with population standard
+deviations of 15.
+
+A scientist wants to know if the mean IQ level between individuals in
+city A and city B are different, so she selects a simple random sample
+of 20 individuals from each city and records their IQ levels.
+
+```{r}
+
+cityA = c(82, 84, 85, 89, 91, 91, 92, 94, 99, 99, 105,
+          109, 109, 109, 110, 112, 112, 113, 114, 114)
+
+cityB = c(90, 91, 91, 91, 95, 95, 99, 99, 108, 109, 109,
+          114, 115, 116, 117, 117, 128, 129, 130, 133)
+
+
+
+```
+
+```{r}
+
+z.test(x=cityA, y=cityB, mu=0, sigma.x=15, sigma.y=15)
+```
+
+# T-test
+
+In order to use z-test, one needs to know the population standard
+deviation σ. Very often we don't have this information. However, the
+central limit theorem provides a way to infer it from the standard error
+of sample:
+
+$$
+s = {σ \over \sqrt{n}}
+$$
+
+T-test uses this equation to draw σ, simplifying the hypothesis testing
+but at the cost additional uncertainty, which is reflected in the
+heavier tails of the t-distribution compared to the normal distribution.
+
+## Task 7
+
+Let's return to Exercise #2 estimating how many memes professors know,
+and test is this number equal to 3.
+
+```{r}
+
+x <- c(3, 7, 11, 0, 7, 0, 4, 5, 6, 2)
+
+```
+
+Calculate t-statistics and the corresponding p-value from
+t-distribution.
+
+$$
+t = {{\bar{x} - \mu_0}\over{s / \sqrt{n}}}
+$$
+
+```{r}
+
+n <- length(x)
+t_stat <- (mean(x) - 3) / (sd(x) / sqrt(n))
+t_stat
+
+pt(-t_stat, df=n-1) * 2
+```
+
+## T-test in R
+
+Function `t.test()` is very similar to `z.test()` but requires less
+parameters.
+
+```{r}
+
+t.test(x, mu=3, alternative="two.sided")
+
+```
+
+Test two more combinations of hypotheses for the significance level 10%:
+
+-   $H_0: \mu \le 3 \qquad H_1: \mu > 3$
+-   $H_0: \mu \ge 3 \qquad H_1: \mu < 3$
+
+```{r}
+
+t.test(x, mu = 3, alternative = "greater", conf.level = 0.90)
+```
+
+## Task 8
+
+The average 1-ounce chocolate chip cookie contains 110 calories. A
+random sample of 15 different brands of cookies resulted in the
+following calorie amounts.
+
+```{r}
+
+x <- c(100, 160, 125, 100, 150, 150, 160, 140, 185, 135, 125, 120, 155, 110, 145)
+
+```
+
+At the 0.01 significance level, is there sufficient evidence that the
+average caloric content is greater than 110 calories? Use the critical
+value method.
+
+```{r}
+
+t.test(x, mu = 3, alternative = "less", conf.level = 0.90)
+
+```
+
+# Sample size
+
+## Task 9
+
+A random sample of the birth weights of 186 babies has a mean of 3103 g
+and a standard deviation of 696 g. These babies are born to mothers who
+did not use cocaine during their pregnancy.
+
+1.  Construct a 95% confidence interval estimate of the mean birth
+    weight for all such babies. 95% Confidence Interval: $\bar{x} ± E$,
+    where $E = t_{α/2} \cdot s / \sqrt{n}$.
+2.  Compare the confidence interval from part b) to this confidence
+    interval obtained for birth weights (in grams) of babies born to
+    mothers who used cocaine during pregnancy: 2608 \< μ \< 2792.
+
+Does cocaine use appear to affect the birth weight of a baby?
+
+```{r}
+n <- 186
+m <- 3103
+s <- 696
+
+t_crit <- qt(0.05/2, df=n-1, lower.tail=F)
+e <- t_crit * s / sqrt(n)
+
+sprintf("(%.1f, %.1f)", m-e, m+e)
+
+```
+
+## Task 10
+
+Below is a random sample of times for a swimming event.
+
+```{r}
+
+x <- c(154.61, 175.62, 158.03, 175.82, 164.22, 176.47, 165.19, 176.58, 165.64,
+       177.68, 168.62, 180.33, 170.08, 183.63, 173.17, 185.71, 174.48, 186.49)
+
+```
+
+1.  Find a 95% confidence interval for the mean time for this event.
+2.  How large a sample is needed to find the mean time for the swimming
+    event within 0.2 seconds with 95% confidence?
+
+This time, we will use the function `t.test`
+
+```{r}
+t.test(x, conf.level = 0.95)
+
+```
+
+What is the value of the marginal error?
+
+```{r}
+res <- t.test(x, conf.level = 0.95)
+(res$conf.int[2] - res$conf.int[1]) / 2
+
+```
+
+In order to reduce E to 0.2 seconds we need to increase the sample size
+
+$$
+n = \left ( {
+{z_{α/2} \cdot σ} \over {E}
+} \right ) ^ 2
+$$
+
+where σ can be approximated by the standard deviation of sample.
+
+```{r}
+z_crit <- qnorm(0.05/2)
+(z_crit * sd(x) / 0.2)^2
+
+```
+
+# More practice
+
+## Task 11
+
+A pasta company wants to determine the average amount of macaroni they
+are putting in a one-pound box. The weights (in grams) of a sample of 14
+boxes is given below.
+
+Test the claim that the mean weight of a box is equal to 454 grams (1
+pound = 454 grams). Use the t-test with α=1%.
+
+```{r}
+
+boxes <- c(460, 462, 458, 466, 457, 455, 459, 457, 458, 460, 453, 459, 464, 461)
+t.test(boxes, mu=454, alternative="two.sided", conf.level=0.01)
+```
+
+## Task 12
+
+Listed below are speeds (mi/h) of randomly selected vehicles measured on
+a section of highway on a weekday afternoon. Use a 95% confidence level
+to test the claim that the mean speed is greater than 65 mi/h.
+
+```{r}
+
+speed <- c(61, 64, 65, 65, 66, 66, 67, 67, 67, 68, 69, 69, 70, 73, 74, 88)
+t.test(speed, mu=65, alternative="greater", conf.level=0.95)
+
+
+```
+
+## Task 13
+
+Hoping to attract more shoppers downtown, a city builds a new public
+parking garage in the central business district. The city plans to pay
+for the structure through parking fees. During a two-month period (44
+weekdays), daily fees collected averaged \$125, with a standard
+deviation of \$15. The consultant who advised the city on this project
+predicted that parking revenues would average \$130 per day. Test this
+prediction using the confidence interval method at significance level
+0.10.
+
+```{r}
+alpha <- 0.10
+n <- 44
+m <- 125
+s <- 15
+
+t_crit <- qt(alpha/2, df=n-1, lower.tail=F)
+e <- t_crit * s / sqrt(n)
+
+sprintf("(%.1f, %.1f)", m-e, m+e)
+
+```
+
+## Task 14
+
+When 16 seventeen-year-old women were randomly selected and tested with
+an aerobics test, the mean of their scores was found to be 37.9 with a
+sample standard deviation of 7.3. Construct both a 90% confidence
+interval and a 99% confidence interval for the mean. Write out the
+meaning of your findings.
+
+```{r}
+
+n <- 16
+m <- 37.9
+s <- 7.3
+
+t_crit <- qt(0.1/2, df=n-1, lower.tail=F)
+e1 <- t_crit * s / sqrt(n)
+
+t_crit <- qt(0.01/2, df=n-1, lower.tail=F)
+e2 <- t_crit * s / sqrt(n)
+
+sprintf("(%.1f, %.1f)", m-e1, m+e1)
+sprintf("(%.1f, %.1f)", m-e2, m+e2)
+
+
+```
+
+## Exercise #15
+
+A sample of apples has weights (in grams) given below.
+
+1.  Find a 95% confidence interval for the mean weight of this kind of
+    apple.
+2.  How large a sample would be needed to estimate the mean weight of
+    these apples with 99% confidence and margin of error at most 5
+    grams?
+
+```{r}
+
+apples <- c(139, 169, 165, 133, 164, 150, 163, 137, 132, 134,
+            105, 114, 103, 123, 111)
+
+```
+
+Confidence interval
+
+```{r}
+t.test(apples, conf.level=0.95)
+```
+
+Sample size
+
+```{r}
+
+z_crit <- qnorm(0.01/2)
+(z_crit * sd(apples) / 5)^2
+```
